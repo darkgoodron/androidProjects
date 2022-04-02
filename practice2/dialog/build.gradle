@@ -7,7 +7,7 @@ android {
     buildToolsVersion "32.0.0"
 
     defaultConfig {
-        applicationId "com.example.dialog"
+        applicationId "ru.mirea.vetoshkin.dialog"
         minSdkVersion 16
         targetSdkVersion 32
         versionCode 1

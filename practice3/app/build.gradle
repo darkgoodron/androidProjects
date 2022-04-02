@@ -7,7 +7,7 @@ android {
     buildToolsVersion "32.0.0"
 
     defaultConfig {
-        applicationId "com.example.practice3"
+        applicationId "ru.mirea.vetoshkin.practice3"
         minSdkVersion 16
         targetSdkVersion 32
         versionCode 1

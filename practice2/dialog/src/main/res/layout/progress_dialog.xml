@@ -9,7 +9,7 @@
         android:orientation="vertical"
         android:gravity="center"
         android:padding="25dp"
-        android:background="@drawable/bg_round">
+        android:background="@drawable/ic_launcher_background">
 
         <ProgressBar
             android:layout_width="wrap_content"

@@ -1,8 +1,9 @@
-include ':dialog'
-include ':notificationapp'
 include ':toastapp'
-include ':intentfilter'
+include ':notificationapp'
 include ':multiactivity'
 include ':lifecycleactivity'
+include ':intentfilter'
+include ':intintfilter'
+include ':dialog'
 include ':app'
 rootProject.name = "practice2"

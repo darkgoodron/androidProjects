@@ -1,6 +1,4 @@
-include ':layouttype2:myapplication'
-include ':clickbuttons2'
-include ':layouttype2'
 include ':layouttype'
+include ':clickbuttons'
 include ':app'
-rootProject.name = "practice"
+rootProject.name = "practice1"
