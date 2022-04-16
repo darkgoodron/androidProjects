@@ -1,3 +1,5 @@
+include ':workmanager'
+include ':loadermanger'
 include ':thread'
 include ':looper'
 include ':data_thread'
