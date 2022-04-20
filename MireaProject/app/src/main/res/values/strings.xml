@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">MireaProject</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_settings">hello settings</string>
+    <string name="settings">Settings</string>
+    <string name="button">Button</string>
+    <string name="history">History</string>
+    <string name="hello_history">hello_history</string>
 </resources>
