@@ -34,7 +34,7 @@ public class Settings extends Fragment {
         field_nickname = inflatedView.findViewById(R.id.editTextTextMultiLine);
         field_hobby = inflatedView.findViewById(R.id.editTextTextMultiLine2);
         field_city = inflatedView.findViewById(R.id.editTextTextMultiLine3);
-        preferences = this.getActivity().getPreferences(Context.MODE_PRIVATE);
+        preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
 
         Button button = (Button) inflatedView.findViewById(R.id.button3);
         button.setOnClickListener(new View.OnClickListener()
