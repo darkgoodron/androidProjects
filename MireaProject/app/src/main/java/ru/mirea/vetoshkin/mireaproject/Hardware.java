@@ -24,9 +24,10 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
@@ -47,11 +48,18 @@ public class Hardware extends Fragment {
     private Uri imageUri;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_CODE_PERMISSION = 100;
+    private Button saveButton;
     private Button startRecordButton;
     private Button stopRecordButton;
     private MediaRecorder mediaRecorder;
     private File audioFile;
     private View inflaterView;
+    private final String[] PERMISSIONS = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+    };
+    ActivityResultLauncher<Intent> cameraRequest;
+    ActivityResultLauncher<String[]> permissionsRequest;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,39 +90,38 @@ public class Hardware extends Fragment {
 
         //camera
         imageView = inflaterView.findViewById(R.id.imageView);
-        int cameraPermissionStatus =
-                ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA);
-        int storagePermissionStatus = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (cameraPermissionStatus == PackageManager.PERMISSION_GRANTED && storagePermissionStatus == PackageManager.PERMISSION_GRANTED) {
-            isWork = true;
-        } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_CODE_PERMISSION_CAMERA);
+        saveButton = (Button) imageView.findViewById(R.id.button_saveImage);
+        saveButton.setOnClickListener(this::onSaveButtonClick);
+        Log.d("0", String.valueOf(isWork));
+
+        cameraRequest = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        imageView.setImageURI(imageUri);
+                        saveButton.setEnabled(true);
+                    }
+                });
+
+        permissionsRequest = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
+                    if (isGranted.containsValue(false)){
+                        permissionsRequest.launch(PERMISSIONS);
+                    } else {
+                        isWork = true;
+                    }
+                });
+        isWork = checkPermissions(getContext(), PERMISSIONS);
+        if(!isWork){
+            if (getActivity() != null) {
+                permissionsRequest.launch(PERMISSIONS);
+            }
         }
 
         startRecordButton = inflaterView.findViewById(R.id.btnStart);
         stopRecordButton = inflaterView.findViewById(R.id.btnStop);
         mediaRecorder = new MediaRecorder();
 
-        Button buttonViewImage = (Button) inflaterView.findViewById(R.id.button_viewImage);
-        buttonViewImage.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null && isWork == true) {
-                    File photoFile = null;
-                    try {
-                        photoFile = createImageFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    String authorities = getActivity().getApplicationContext().getPackageName() + ".fileprovider";
-                    imageUri = FileProvider.getUriForFile(getActivity(), authorities, photoFile);
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
-                }
-            }
-        });
         Button btnStart = (Button) inflaterView.findViewById(R.id.btnStart);
         btnStart.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -144,6 +151,21 @@ public class Hardware extends Fragment {
         return inflaterView;
     }
 
+    public void onSaveButtonClick(View view) {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null && isWork == true) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String authorities = getActivity().getApplicationContext().getPackageName() + ".fileprovider";
+            imageUri = FileProvider.getUriForFile(getActivity(), authorities, photoFile);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+        }
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -168,6 +190,16 @@ public class Hardware extends Fragment {
                 isWork = false;
             }
         }
+    }
+    public static boolean checkPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     private void startRecording() throws IOException {
         String state = Environment.getExternalStorageState();
