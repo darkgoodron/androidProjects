@@ -6,22 +6,12 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -33,6 +23,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +61,7 @@ public class Hardware extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         inflaterView = inflater.inflate(R.layout.fragment_hardware, container, false);
-
+        //sensors
         listCountSensor = inflaterView.findViewById(R.id.list_view);
         SensorManager sensorManager =
                 (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
@@ -84,6 +80,7 @@ public class Hardware extends Fragment {
                         new int[]{android.R.id.text1, android.R.id.text2});
         listCountSensor.setAdapter(mHistory);
 
+        //camera
         imageView = inflaterView.findViewById(R.id.imageView);
         int cameraPermissionStatus =
                 ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA);
