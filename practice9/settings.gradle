@@ -1,3 +1,4 @@
+include ':yandexdriver'
 include ':yandexmaps'
 include ':app'
 rootProject.name = "practice9"

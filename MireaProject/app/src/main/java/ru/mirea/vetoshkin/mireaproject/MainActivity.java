@@ -52,4 +52,10 @@ public class MainActivity extends AppCompatActivity {
         ft.replace(R.id.frameLayout, fragment);
         ft.commit();
     }
+    public void onClickGmap(View view) {
+        MapsFragment fragment = new MapsFragment();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.frameLayout, fragment);
+        ft.commit();
+    }
 }
