@@ -1,6 +1,7 @@
 package ru.mirea.vetoshkin.mireaproject;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -40,20 +41,16 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Hardware extends Fragment {
-    private ListView listCountSensor;
     private static final int REQUEST_CODE_PERMISSION_CAMERA = 100;
     private ImageView imageView;
     private static final int CAMERA_REQUEST = 0;
     private boolean isWork = false;
     private Uri imageUri;
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int REQUEST_CODE_PERMISSION = 100;
-    private Button saveButton;
     private Button startRecordButton;
     private Button stopRecordButton;
     private MediaRecorder mediaRecorder;
     private File audioFile;
-    private View inflaterView;
     private final String[] PERMISSIONS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA
@@ -65,14 +62,15 @@ public class Hardware extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @SuppressLint("CutPasteId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        inflaterView = inflater.inflate(R.layout.fragment_hardware, container, false);
+        View inflaterView = inflater.inflate(R.layout.fragment_hardware, container, false);
         //sensors
-        listCountSensor = inflaterView.findViewById(R.id.list_view);
+        ListView listCountSensor = inflaterView.findViewById(R.id.list_view);
         SensorManager sensorManager =
-                (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+                (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
         List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         ArrayList<HashMap<String, Object>> arrayList = new ArrayList<>();
         HashMap<String, Object> sensorTypeList;
@@ -90,7 +88,7 @@ public class Hardware extends Fragment {
 
         //camera
         imageView = inflaterView.findViewById(R.id.imageView);
-        saveButton = (Button) imageView.findViewById(R.id.button_saveImage);
+        Button saveButton = (Button) inflaterView.findViewById(R.id.button_saveImage);
         saveButton.setOnClickListener(this::onSaveButtonClick);
         Log.d("0", String.valueOf(isWork));
 
@@ -123,29 +121,23 @@ public class Hardware extends Fragment {
         mediaRecorder = new MediaRecorder();
 
         Button btnStart = (Button) inflaterView.findViewById(R.id.btnStart);
-        btnStart.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                try {
-                    startRecordButton.setEnabled(false);
-                    stopRecordButton.setEnabled(true);
-                    stopRecordButton.requestFocus();
-                    startRecording();
-                } catch (Exception e) {
-                    Log.e(TAG, "Caught io exception " + e.getMessage());
-                }
+        btnStart.setOnClickListener(v -> {
+            try {
+                startRecordButton.setEnabled(false);
+                stopRecordButton.setEnabled(true);
+                stopRecordButton.requestFocus();
+                startRecording();
+            } catch (Exception e) {
+                Log.e(TAG, "Caught io exception " + e.getMessage());
             }
         });
         Button btnStop = (Button) inflaterView.findViewById(R.id.btnStop);
-        btnStop.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startRecordButton.setEnabled(true);
-                stopRecordButton.setEnabled(false);
-                startRecordButton.requestFocus();
-                stopRecording();
-                processAudioFile();
-            }
+        btnStop.setOnClickListener(v -> {
+            startRecordButton.setEnabled(true);
+            stopRecordButton.setEnabled(false);
+            startRecordButton.requestFocus();
+            stopRecording();
+            processAudioFile();
         });
 
         return inflaterView;
@@ -153,28 +145,27 @@ public class Hardware extends Fragment {
 
     public void onSaveButtonClick(View view) {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null && isWork == true) {
-            File photoFile = null;
+        if (cameraIntent.resolveActivity(requireActivity().getPackageManager()) != null && isWork) {
+            File photoFile;
             try {
                 photoFile = createImageFile();
+                String authorities = requireActivity().getApplicationContext().getPackageName() + ".fileprovider";
+                imageUri = FileProvider.getUriForFile(requireActivity(), authorities, photoFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            String authorities = getActivity().getApplicationContext().getPackageName() + ".fileprovider";
-            imageUri = FileProvider.getUriForFile(getActivity(), authorities, photoFile);
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            startActivityForResult(cameraIntent, CAMERA_REQUEST);
         }
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             imageView.setImageURI(imageUri);
         }
     }
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "IMAGE_" + timeStamp + "_";
         File storageDirectory =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
@@ -210,7 +201,7 @@ public class Hardware extends Fragment {
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             if (audioFile == null) {
-                audioFile = new File(getActivity().getExternalFilesDir(
+                audioFile = new File(requireActivity().getExternalFilesDir(
                         Environment.DIRECTORY_MUSIC), "mirea.3gp");
             }
             mediaRecorder.setOutputFile(audioFile.getAbsolutePath());
@@ -237,10 +228,10 @@ public class Hardware extends Fragment {
         values.put(MediaStore.Audio.Media.DATE_ADDED, (int) (current / 1000));
         values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/3gpp");
         values.put(MediaStore.Audio.Media.DATA, audioFile.getAbsolutePath());
-        ContentResolver contentResolver = getActivity().getContentResolver();
+        ContentResolver contentResolver = requireActivity().getContentResolver();
         Log.d(TAG, "audioFile: " + audioFile.canRead());
         Uri baseUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Uri newUri = contentResolver.insert(baseUri, values);
-        getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, newUri));
+        requireActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, newUri));
     }
 }

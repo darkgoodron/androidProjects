@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -33,10 +32,10 @@ public class Room extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        inflaterView = inflater.inflate(R.layout.fragment_hardware, container, false);
+        inflaterView = inflater.inflate(R.layout.fragment_room, container, false);
 
-        Button addNewUserButton = inflaterView.findViewById(R.id.addNewUserButton);
-        addNewUserButton.setOnClickListener(new View.OnClickListener() {
+//        Button addNewUserButton = inflaterView.findViewById(R.id.addNewUserButton);
+        inflaterView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivityForResult(new Intent(getActivity(), AddNewPersonActivity.class), 100);
@@ -49,17 +48,17 @@ public class Room extends Fragment {
         return inflaterView;
     }
     private void initRecyclerView() {
-        RecyclerView recyclerView = inflaterView.findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = (RecyclerView) inflaterView.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
         personListAdapter = new PersonListAdapter(getActivity());
         recyclerView.setAdapter(personListAdapter);
     }
 
     private void loadUserList() {
-        AppDatabase db = AppDatabase.getDbInstance(getActivity().getApplicationContext());
+        AppDatabase db = AppDatabase.getDbInstance(requireActivity().getApplicationContext());
         List<Person> personList = db.userDao().getAllUsers();
         personListAdapter.setUserList(personList);
     }

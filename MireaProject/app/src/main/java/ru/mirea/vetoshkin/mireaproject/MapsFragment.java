@@ -25,6 +25,7 @@ import java.util.Date;
 public class MapsFragment extends Fragment implements GoogleMap.OnMapClickListener{
 
     private GoogleMap googleMap;
+    private View inflaterView;
     private final ArrayList<MarkerOptions> mapMarkers = new ArrayList<>();
 
     @Nullable
@@ -32,7 +33,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapClickListen
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View inflaterView = inflater.inflate(R.layout.fragment_maps, container, false);
+        inflaterView = inflater.inflate(R.layout.fragment_maps, container, false);
         return inflaterView;
     }
 
@@ -73,12 +74,15 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapClickListen
 
     @Override
     public void onMapClick(@NonNull LatLng latLng) {
-        CameraPosition cameraPos = new CameraPosition.Builder().target(
-                latLng).zoom(12).build();
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos));
-        Date currentTime = Calendar.getInstance().getTime();
-        latLng.toString();
-        addMarker(currentTime, latLng);
+        if(googleMap != null){
+            CameraPosition cameraPos = new CameraPosition.Builder().target(
+                    latLng).zoom(12).build();
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos));
+            Date currentTime = Calendar.getInstance().getTime();
+            latLng.toString();
+            addMarker(currentTime, latLng);
+        }
+
     }
 
 }

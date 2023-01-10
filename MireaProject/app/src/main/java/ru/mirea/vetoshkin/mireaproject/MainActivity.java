@@ -1,6 +1,5 @@
 package ru.mirea.vetoshkin.mireaproject;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -14,13 +13,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
-    public void onClickPlayMusic(View view) {
-        startService(
-                new Intent(MainActivity.this, PlayerService.class));
+    public void onClickCalculator(View view) {
+        calculator calc = new calculator();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.frameLayout, calc);
+        ft.commit();
     }
-    public void onClickStopMusic(View view) {
-        stopService(
-                new Intent(MainActivity.this, PlayerService.class));
+    public void onClickPlayer(View view) {
+        Player player = new Player();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.frameLayout, player);
+        ft.commit();
     }
     public void onClickHardware(View view) {
         Hardware fragment = new Hardware();
